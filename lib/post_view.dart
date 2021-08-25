@@ -10,19 +10,29 @@ class PostView extends StatelessWidget {
       appBar: AppBar(
         title: Text('Posts'),
       ),
-      body: BlocBuilder<PostsCubit, List<Post>>(builder: (context, posts) {
-        if (posts.isEmpty) {
+      body: BlocBuilder<PostsBloc, PostsState>(builder: (context, state) {
+        if (state is LoadingPostsState) {
           return Center(
             child: CircularProgressIndicator(),
           );
+        } else if (state is LoadedPostsState) {
+          return RefreshIndicator(
+              onRefresh: () async =>
+                  BlocProvider.of<PostsBloc>(context).add(PullToRefreshEvent()),
+              child: ListView.builder(
+                  itemCount: state.posts.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(state.posts[index].title),
+                      ),
+                    );
+                  }));
+        } else if (state is FailedToLoadPostsState) {
+          return Center(child: Text('Error occured'));
+        } else {
+          return Container();
         }
-        return ListView.builder(itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(posts[index].title),
-            ),
-          );
-        });
       }),
     );
   }
