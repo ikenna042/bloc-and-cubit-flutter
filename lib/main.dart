@@ -1,3 +1,4 @@
+import 'package:bloc_and_cubit/nav_cubit.dart';
 import 'package:bloc_and_cubit/post_view.dart';
 import 'package:bloc_and_cubit/posts_cubit.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +17,12 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: BlocProvider<PostsBloc>(
-        create: (_) => PostsBloc()..add(LoadPostsEvent()),
-        child: PostView(),
-      ),
-    );
+        home: MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => NavCubit()),
+        BlocProvider(create: (_) => PostsBloc()..add(LoadPostsEvent()))
+      ],
+      child: PostView(),
+    ));
   }
 }
